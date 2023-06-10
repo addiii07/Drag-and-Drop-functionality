@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    .container {
+      display: flex;
+    }
+
+    .container div {
+      border: 1px solid black;
+      padding: 10px;
+      margin: 10px;
+    }
+
+    .dragged {
+      opacity: 0.5;
+    }
+
+    .success {
+      background-color: lightgreen;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="container1">
+      <h3>Container 1</h3>
+      <ul>
+        <li draggable="true" ondragstart="drag(event)">Item 1</li>
+        <li draggable="true" ondragstart="drag(event)">Item 2</li>
+        <li draggable="true" ondragstart="drag(event)">Item 3</li>
+      </ul>
+    </div>
+    <div id="container2" ondragover="allowDrop(event)" ondrop="drop(event)">
+      <h3>Container 2</h3>
+      <ul id="draggedItems"></ul>
+    </div>
+  </div>
+  <button onclick="resetContainers()">Reset</button>
+
+  <script>
+    var draggedItem = null;
+    var draggedItemsArray = [];
+
+    function allowDrop(event) {
+      event.preventDefault();
+    }
+
+    function drag(event) {
+      draggedItem = event.target;
+      event.dataTransfer.setData("text", event.target.textContent);
+      event.target.classList.add("dragged");
+    }
+
+    function drop(event) {
+      event.preventDefault();
+      var data = event.dataTransfer.getData("text");
+
+      if (!draggedItemsArray.includes(data)) {
+        draggedItemsArray.push(data);
+        updateDraggedItemsList();
+      }
+
+      draggedItem.classList.remove("dragged");
+      event.target.classList.add("success");
+      // Remove the dragged item from Container 1
+      draggedItem.parentNode.removeChild(draggedItem);
+    }
+
+    function updateDraggedItemsList() {
+      var draggedItemsList = document.getElementById("draggedItems");
+      draggedItemsList.innerHTML = "";
+
+      for (var i = 0; i < draggedItemsArray.length; i++) {
+        var listItem = document.createElement("li");
+        listItem.textContent = draggedItemsArray[i];
+        draggedItemsList.appendChild(listItem);
+      }
+    }
+
+    function resetContainers() {
+      var container1 = document.getElementById("container1");
+      var container2 = document.getElementById("container2");
+      
+      // Reset container 1
+      container1.innerHTML = `
+        <h3>Container 1</h3>
+        <ul>
+          <li draggable="true" ondragstart="drag(event)">Item 1</li>
+          <li draggable="true" ondragstart="drag(event)">Item 2</li>
+          <li draggable="true" ondragstart="drag(event)">Item 3</li>
+        </ul>
+      `;
+      
+      // Reset container 2
+      container2.innerHTML = `
+        <h3>Container 2</h3>
+        <ul id="draggedItems"></ul>
+      `;
+      container2.classList.remove("success");
+      
+      draggedItemsArray = [];
+    }
+  </script>
+</body>
+</html>
